@@ -7,31 +7,38 @@ function ViewProducts() {
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
     const navigate = useNavigate();
-    const user = JSON.parse(localStorage.getItem('user'));
+
+    // 1. We removed 'user' from the top level to avoid recreation on every render
 
     useEffect(() => {
-        if (!user) {
+        const storedUser = JSON.parse(localStorage.getItem('user'));
+        
+        if (!storedUser) {
             navigate('/login');
             return;
         }
-        loadProducts();
-    }, [navigate, user]);
 
-    const loadProducts = async () => {
-        try {
-            const res = await api.get('/products');
-            setProducts(res.data);
-        } catch (err) {
-            setError('Failed to load products');
-        }
-    };
+        const loadProducts = async () => {
+            try {
+                const res = await api.get('/products');
+                setProducts(res.data);
+            } catch (err) {
+                setError('Failed to load products');
+            }
+        };
+
+        loadProducts();
+    }, [navigate]); // 2. Dependencies are now stable
 
     const handleDelete = async (id) => {
+        const user = JSON.parse(localStorage.getItem('user'));
         if (window.confirm("Are you sure you want to delete this product?")) {
             try {
                 await api.delete(`/products/${id}?sellerId=${user.id}`);
                 setSuccess("Product deleted successfully");
-                loadProducts();
+                // Refresh list
+                const res = await api.get('/products');
+                setProducts(res.data);
             } catch (err) {
                 setError(err.response?.data?.message || 'Failed to delete product');
             }
@@ -39,6 +46,7 @@ function ViewProducts() {
     };
 
     const handleBuy = async (productId, quantityToBuy) => {
+        const user = JSON.parse(localStorage.getItem('user'));
         try {
             await api.post('/orders/purchase', {
                 productId: productId,
@@ -46,11 +54,16 @@ function ViewProducts() {
                 quantity: quantityToBuy
             });
             setSuccess("Purchase successful!");
-            loadProducts();
+            // Refresh list
+            const res = await api.get('/products');
+            setProducts(res.data);
         } catch (err) {
             setError(err.response?.data?.message || 'Failed to purchase product');
         }
     };
+
+    // Helper to get current user ID for the conditional rendering
+    const currentUser = JSON.parse(localStorage.getItem('user'));
 
     return (
         <div className="container" style={{padding: '40px 20px'}}>
@@ -80,7 +93,8 @@ function ViewProducts() {
                             <td>{p.quantity}</td>
                             <td>{p.sellerName || 'Unknown'}</td>
                             <td>
-                                {user.id === p.sellerId ? (
+                                {/* Use currentUser safely here */}
+                                {currentUser?.id === p.sellerId ? (
                                     <>
                                         <Link to={`/edit-product/${p.id}`} className="btn btn-primary btn-small">Edit</Link>
                                         <button onClick={() => handleDelete(p.id)} className="btn btn-danger btn-small">Delete</button>

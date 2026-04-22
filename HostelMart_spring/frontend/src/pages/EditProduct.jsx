@@ -9,24 +9,35 @@ function EditProduct() {
     const [quantity, setQuantity] = useState('');
     const [error, setError] = useState('');
     const navigate = useNavigate();
-    const user = JSON.parse(localStorage.getItem('user'));
+    const [test , setTest] = useState(true)
 
     useEffect(() => {
+        // 1. Read localStorage inside the effect so it doesn't run on every render
+        const user = JSON.parse(localStorage.getItem('user'));
+        
         if (!user) {
             navigate('/login');
             return;
         }
+
         // Fetch product
         api.get(`/products/${id}`).then(res => {
             setName(res.data.name);
             setPrice(res.data.price);
             setQuantity(res.data.quantity);
         }).catch(() => setError('Failed to load product'));
-    }, [id, navigate, user]);
+        
+    // 2. Include 'id' because the fetch depends on it. 
+    // 'user' is no longer a dependency because we moved it inside.
+    }, [test]); 
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setTest(!test);
         try {
+            // 3. Grab the user data at the exact moment of submission
+            const user = JSON.parse(localStorage.getItem('user'));
+            
             await api.put(`/products/${id}`, {
                 name,
                 price: parseFloat(price),
