@@ -1,0 +1,12 @@
+com\hostelmart\dao\OrderDao.class
+com\hostelmart\config\AppConfig.class
+com\hostelmart\controller\AuthController.class
+com\hostelmart\config\WebConfig.class
+com\hostelmart\dao\ProductDao.class
+com\hostelmart\controller\ProductController.class
+com\hostelmart\model\Product.class
+com\hostelmart\model\User.class
+com\hostelmart\config\WebAppInitializer.class
+com\hostelmart\controller\OrderController.class
+com\hostelmart\model\Order.class
+com\hostelmart\dao\UserDao.class
