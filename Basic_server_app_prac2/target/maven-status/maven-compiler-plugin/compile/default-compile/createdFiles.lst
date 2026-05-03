@@ -1,0 +1,5 @@
+com\hostelmart\HostelMartServer.class
+com\hostelmart\dao\ProductDAO.class
+com\hostelmart\HostelMartClient.class
+com\hostelmart\util\DBUtil.class
+com\hostelmart\model\Product.class
